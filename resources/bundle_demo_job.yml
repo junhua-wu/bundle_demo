@@ -1,0 +1,38 @@
+# The main job for bundle_demo.
+job_clusters: &job_clusters
+  - job_cluster_key: job_cluster_small
+    new_cluster:
+      spark_version: 15.3.x-cpu-ml-scala2.12
+      node_type_id: i3.xlarge
+      autoscale:
+          min_workers: 1
+          max_workers: 4
+      init_scripts:
+        - workspace:
+            destination: ${workspace.file_path}/init-scripts/conf.sh
+
+
+# the alternative approach: add libraries in the task level
+libraries: &libraries
+    - pypi:
+        package: "pydantic==2.2.0"
+    - pypi:
+        package: "httpx==0.27.0"        
+
+
+resources:
+  jobs:
+    bundle_demo_job:
+      name: bundle_demo_job
+
+      tasks:
+        - task_key: notebook_task
+          job_cluster_key: job_cluster_small
+          notebook_task:
+            notebook_path: ../src/notebook.ipynb
+
+          # the alternative approach: add libraries in the task level
+          # libraries: *libraries
+        
+      job_clusters: *job_clusters
+
